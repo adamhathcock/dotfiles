@@ -1,0 +1,6 @@
+# Home-relative files to sync into this repo.
+# Blank lines and lines starting with # are ignored.
+
+.config/opencode/AGENTS.md
+.config/opencode/opencode.json
+.config/opencode/plugins/rtk.ts

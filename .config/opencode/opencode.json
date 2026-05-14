@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "rider": {
+      "type": "remote",
+      "url": "http://127.0.0.1:64342/stream",
+      "enabled": true
+    }
+  },
+  "lsp": {}
+  }
