@@ -5,7 +5,7 @@
 .DESCRIPTION
   Reads a manifest of home-relative file paths and copies each existing source
   file into the matching path inside this repo. If a listed source file is
-  missing, the repo copy is removed.
+  missing, the repo copy can be removed after an explicit confirmation.
 
 .EXAMPLE
   .\Sync-HomeFiles.ps1
@@ -54,6 +54,29 @@ function Add-Result {
         Status = $Status
         Detail = $Detail
     }
+}
+
+function Test-FileContentMatch {
+    param(
+        [Parameter(Mandatory)]
+        [string]$PathA,
+
+        [Parameter(Mandatory)]
+        [string]$PathB
+    )
+
+    if (-not (Test-Path -LiteralPath $PathA -PathType Leaf) -or -not (Test-Path -LiteralPath $PathB -PathType Leaf)) {
+        return $false
+    }
+
+    $itemA = Get-Item -LiteralPath $PathA
+    $itemB = Get-Item -LiteralPath $PathB
+
+    if ($itemA.Length -ne $itemB.Length) {
+        return $false
+    }
+
+    return (Get-FileHash -LiteralPath $PathA -Algorithm SHA256).Hash -eq (Get-FileHash -LiteralPath $PathB -Algorithm SHA256).Hash
 }
 
 function Resolve-TrackedPath {
@@ -106,20 +129,35 @@ foreach ($entry in $entries) {
     $destinationPath = Resolve-TrackedPath -BasePath $repoRoot -RelativePath $entry -Label 'repo'
 
     if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {
+        if ((Test-Path -LiteralPath $destinationPath -PathType Leaf) -and (Test-FileContentMatch -PathA $sourcePath -PathB $destinationPath)) {
+            Write-Ok "Unchanged $entry"
+            Add-Result -Results ([ref]$results) -Path $entry -Status 'Unchanged' -Detail 'Home and repo files already match'
+            continue
+        }
+
         $destinationDirectory = Split-Path -Parent $destinationPath
 
         if (-not (Test-Path -LiteralPath $destinationDirectory -PathType Container)) {
             if ($PSCmdlet.ShouldProcess($destinationDirectory, 'Create directory')) {
                 New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
             }
+            else {
+                Write-Warn "Skipped $entry"
+                Add-Result -Results ([ref]$results) -Path $entry -Status 'Skipped' -Detail 'Directory creation declined or previewed'
+                continue
+            }
         }
 
         if ($PSCmdlet.ShouldProcess($destinationPath, 'Copy tracked file from home')) {
             Copy-Item -LiteralPath $sourcePath -Destination $destinationPath -Force
+            Write-Ok "Synced $entry"
+            Add-Result -Results ([ref]$results) -Path $entry -Status 'Synced' -Detail 'Copied from home directory'
+        }
+        else {
+            Write-Warn "Skipped $entry"
+            Add-Result -Results ([ref]$results) -Path $entry -Status 'Skipped' -Detail 'Copy declined or previewed'
         }
 
-        Write-Ok "Synced $entry"
-        Add-Result -Results ([ref]$results) -Path $entry -Status 'Synced' -Detail 'Copied from home directory'
         continue
     }
 
@@ -128,12 +166,22 @@ foreach ($entry in $entries) {
     }
 
     if (Test-Path -LiteralPath $destinationPath -PathType Leaf) {
-        if ($PSCmdlet.ShouldProcess($destinationPath, 'Delete repo copy because source file is missing')) {
-            Remove-Item -LiteralPath $destinationPath -Force
+        if (-not $PSCmdlet.ShouldProcess($destinationPath, 'Delete repo copy because source file is missing')) {
+            Write-Warn "Skipped $entry"
+            Add-Result -Results ([ref]$results) -Path $entry -Status 'Skipped' -Detail 'Deletion declined or previewed'
+            continue
         }
 
+        $confirmationMessage = "Home source for '$entry' is missing.`nDelete '$destinationPath' from the repo?"
+        if (-not $PSCmdlet.ShouldContinue($confirmationMessage, 'Confirm delete')) {
+            Write-Warn "Kept $entry"
+            Add-Result -Results ([ref]$results) -Path $entry -Status 'Skipped' -Detail 'Home source missing; user declined deletion'
+            continue
+        }
+
+        Remove-Item -LiteralPath $destinationPath -Force
         Write-Ok "Removed $entry"
-        Add-Result -Results ([ref]$results) -Path $entry -Status 'Removed' -Detail 'Source file is missing from home directory'
+        Add-Result -Results ([ref]$results) -Path $entry -Status 'Removed' -Detail 'Home source missing and repo file deleted after confirmation'
         continue
     }
 
