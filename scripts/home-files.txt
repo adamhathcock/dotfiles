@@ -3,4 +3,6 @@
 
 .config/opencode/AGENTS.md
 .config/opencode/opencode.json
+.config/opencode/tui.jsonc
 .config/opencode/plugins/rtk.ts
+.config/opencode/opencode-quota/quota-toast.json
