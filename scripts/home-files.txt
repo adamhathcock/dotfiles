@@ -2,6 +2,7 @@
 # Blank lines and lines starting with # are ignored.
 
 .config/opencode/AGENTS.md
+.config/opencode/CLAUDE.md
 .config/opencode/opencode.json
 .config/opencode/tui.jsonc
 .config/opencode/plugins/rtk.ts

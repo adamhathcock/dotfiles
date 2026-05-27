@@ -28,3 +28,7 @@ When modifying this repository:
 
 Rationale: Staging is used locally as part of an iterative workflow and does not signal completion.
 s
+
+## RTK Validation Messages
+
+Ignore `rtk` validation output that says `no hook is install`.
