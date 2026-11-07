@@ -1,12 +1,30 @@
 {
   "$schema": "https://opencode.ai/config.json",
-   "plugin": ["@slkiser/opencode-quota"],
+  "provider": {
+    "mlx": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "MLX Local",
+      "options": {
+        "baseURL": "http://127.0.0.1:8080/v1"
+      },
+      "models": {
+        "mlx-community/gemma-3-4b-it-4bit": {
+          "name": "Gemma 3 4B MLX"
+        },
+        "mlx-community/Qwen3-Coder-30B-A3B-Instruct-4bit": {
+          "name": "Qwen 3 Coder 30B A3B Instruct 4bit"
+        }
+      }
+    },
+    "copilot": {},
+    "openai": {},
+    "xai": {}
+  },
   "mcp": {
     "rider": {
       "type": "remote",
-      "url": "http://127.0.0.1:64342/stream",
+      "url": "http://127.0.0.1:64482/stream",
       "enabled": true
     }
-  },
-  "lsp": {}
   }
+}

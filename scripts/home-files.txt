@@ -6,4 +6,4 @@
 .config/opencode/opencode.json
 .config/opencode/tui.jsonc
 .config/opencode/plugins/rtk.ts
-.config/opencode/opencode-quota/quota-toast.json
+Library/Application Support/lazygit/config.yml

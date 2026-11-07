@@ -1,0 +1,21 @@
+gui:
+  sidePanels:
+    - [files]
+    - [branches]
+    - [commits]
+  showCommandLog: false
+  showRandomTip: false
+  showListFooter: false
+  showPanelJumps: false
+  showBottomLine: true
+  mouseEvents: true
+  nerdFontsVersion: ""
+git:
+  diffRenderers:
+    - name: Difftastic
+      type: extDiff
+      command: >-
+        difft --color=always --display=inline
+        --width={{width}} --context={{diffContext}}
+    - name: Standard
+      type: rawGit
