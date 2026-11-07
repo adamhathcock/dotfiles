@@ -1,0 +1,31 @@
+scripts/Sync-ToHomeFiles.sh
+  s_5a34f8d94fd02a::t_01f9f6455a0ede 66,75-77,81-82
+  s_5a34f8d94fd02a::t_080b713d6676fb 57-65,67-74,78-80,83-87,131-132,134
+scripts/Sync-FromHomeFiles.ps1
+  s_5a34f8d94fd02a::t_587782292ae965 118
+  s_5a34f8d94fd02a::t_080b713d6676fb 110-117,119-136,154-156
+scripts/home-files.txt
+  s_5a34f8d94fd02a::t_080b713d6676fb 3-5,12
+scripts/Sync-ToHomeFiles.ps1
+  s_5a34f8d94fd02a::t_587782292ae965 119
+  s_5a34f8d94fd02a::t_080b713d6676fb 111-118,120-137,155-156,158
+scripts/Sync-FromHomeFiles.sh
+  s_5a34f8d94fd02a::t_01f9f6455a0ede 66,75-77,81-82
+  s_5a34f8d94fd02a::t_080b713d6676fb 57-65,67-74,78-80,83-87,131-133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e26b152742cb4724d49114b445781ba60d9d132d",
+  "prompts": {},
+  "sessions": {
+    "s_5a34f8d94fd02a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4ef63520-78c3-4848-a9b9-6632150d5180",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Adam Hathcock <ADH@chersoft.com>"
+    }
+  }
+}
