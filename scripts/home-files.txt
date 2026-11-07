@@ -1,9 +1,12 @@
 # Home-relative files to sync into this repo.
 # Blank lines and lines starting with # are ignored.
+# An entry may name a different home path for one OS after " | ":
+#   repo/path | windows: home/path
+# The OS is windows, macos or linux. Elsewhere the repo path is the home path.
 
 .config/opencode/AGENTS.md
 .config/opencode/CLAUDE.md
 .config/opencode/opencode.json
 .config/opencode/tui.jsonc
 .config/opencode/plugins/rtk.ts
-Library/Application Support/lazygit/config.yml
+Library/Application Support/lazygit/config.yml | windows: AppData/Local/lazygit/config.yml

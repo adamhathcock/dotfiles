@@ -54,6 +54,37 @@ resolve_tracked_path() {
   printf '%s/%s' "$base_path" "$normalized_relative_path"
 }
 
+case "$(uname -s)" in
+  Darwin) current_os=macos ;;
+  MINGW* | MSYS* | CYGWIN*) current_os=windows ;;
+  *) current_os=linux ;;
+esac
+
+resolve_tracked_entry() {
+  local line="$1"
+  local -a fields
+  local override
+
+  IFS='|' read -r -a fields <<< "$line"
+  entry="$(trim "${fields[0]}")"
+  home_entry="$entry"
+
+  if [[ ${#fields[@]} -gt 1 ]]; then
+    for override in "${fields[@]:1}"; do
+      override="$(trim "$override")"
+
+      case "$override" in
+        windows:?* | macos:?* | linux:?*) ;;
+        *) die "Manifest entry '$line' has an invalid override '$override'; expected 'windows|macos|linux: path'" ;;
+      esac
+
+      if [[ "${override%%:*}" == "$current_os" ]]; then
+        home_entry="$(trim "${override#*:}")"
+      fi
+    done
+  fi
+}
+
 add_result() {
   results+=("$1"$'\t'"$2"$'\t'"$3")
 }
@@ -97,8 +128,9 @@ fi
 results=()
 write_step "Syncing ${#entries[@]} tracked file(s)"
 
-for entry in "${entries[@]}"; do
-  source_path="$(resolve_tracked_path "$home_root" "$entry" 'home')"
+for line in "${entries[@]}"; do
+  resolve_tracked_entry "$line"
+  source_path="$(resolve_tracked_path "$home_root" "$home_entry" 'home')"
   destination_path="$(resolve_tracked_path "$repo_root" "$entry" 'repo')"
 
   if [[ -f "$source_path" ]]; then

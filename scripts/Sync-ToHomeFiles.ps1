@@ -108,6 +108,33 @@ function Resolve-TrackedPath {
     return $resolvedPath
 }
 
+$currentOs = if ($IsMacOS) { 'macos' } elseif ($IsLinux) { 'linux' } else { 'windows' }
+
+function Resolve-TrackedEntry {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Line
+    )
+
+    $fields = @($Line -split '\|' | ForEach-Object { $_.Trim() })
+    $repoPath = $fields[0]
+    $homePath = $repoPath
+
+    foreach ($override in ($fields | Select-Object -Skip 1)) {
+        $os, $path = ($override -split ':', 2) | ForEach-Object { $_.Trim() }
+
+        if ($os -notin 'windows', 'macos', 'linux' -or -not $path) {
+            throw "Manifest entry '$Line' has an invalid override '$override'; expected 'windows|macos|linux: path'"
+        }
+
+        if ($os -eq $currentOs) {
+            $homePath = $path
+        }
+    }
+
+    return $repoPath, $homePath
+}
+
 if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) {
     throw "Manifest file not found: $ManifestPath"
 }
@@ -125,9 +152,10 @@ $results = @()
 
 Write-Step "Syncing $(($entries | Measure-Object).Count) tracked file(s)"
 
-foreach ($entry in $entries) {
+foreach ($line in $entries) {
+    $entry, $homeEntry = Resolve-TrackedEntry $line
     $sourcePath = Resolve-TrackedPath -BasePath $repoRoot -RelativePath $entry -Label 'repo'
-    $destinationPath = Resolve-TrackedPath -BasePath $homeRoot -RelativePath $entry -Label 'home'
+    $destinationPath = Resolve-TrackedPath -BasePath $homeRoot -RelativePath $homeEntry -Label 'home'
 
     if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {
         if ((Test-Path -LiteralPath $destinationPath -PathType Leaf) -and (Test-FileContentMatch -PathA $sourcePath -PathB $destinationPath)) {
