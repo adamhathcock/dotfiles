@@ -1,0 +1,12 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ed1d200ea2518927e3651aa0e5556c9ccdd04d19",
+  "prompts": {},
+  "humans": {
+    "h_e9a34c0484549b": {
+      "author": "Adam Hathcock <ADH@chersoft.com>"
+    }
+  }
+}
